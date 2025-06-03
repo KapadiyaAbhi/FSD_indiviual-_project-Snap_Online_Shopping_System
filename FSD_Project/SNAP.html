@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNAP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        
+        .splash-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .splash-screen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .content {
+        }
+        .header {
+            background-color: #010000;
+            padding: 15px;
+            display: flex;
+            color: white;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .navbar {
+            display: flex;
+            gap: 15px;
+        }
+        .navbar a {
+            text-decoration: none;
+            color: rgb(17, 52, 225);
+            font-size: 18px;
+            padding: 8px 12px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .cart-button {
+            background-color:green ;
+            color: rgb(0, 0, 0);
+            padding: 10px 15px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .product {
+            background-color: black;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.1);
+            color: white;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            width: 200px;
+        }
+        .product img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .product img:hover{
+            transform: scale(1.1);
+        }
+        .offer {
+            color: red;
+            font-weight: bold;
+        }
+        .quantity {
+            width: 50px;
+            text-align: center;
+            margin: 5px;
+        }
+        .button {
+            background-color: rgb(28, 239, 28);
+            color: rgb(22, 17, 17);
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .cart-container {
+            margin: 20px;
+            padding: 15px;
+            background-color: rgb(15, 12, 12);
+            color: white;
+            border-radius: 5px;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        #contact-section {
+            padding: 50px 20px;
+            text-align: center;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 600px;
+        }
+        #contact-section h2 {
+            margin-bottom: 20px;
+        }
+        #contact-section p {
+            margin: 10px 0;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="splash-screen" id="splash">
+        <img src="images/snap.gif" alt="Logo">
+    </div>
+    
+    <div class="content" id="main-content">
+        <div class="header">
+            <div>SNAP</div>
+            <div class="navbar">
+                <a href="#" onclick="showAllProducts()">Home</a>
+                <select id="category-filter" onchange="filterProducts()">
+                    <option value="all">All Categories</option>
+                    <option value="Fruits">Fruits</option>
+                    <option value="Vegetables">Vegetables</option>
+                    <option value="Dairy">Dairy</option>
+                    <option value="Snacks">Snacks</option>
+                    <option value="Offers">Offers</option>
+                </select>
+                <a href="#contact-section" onclick="scrollToContact()">Contact</a>
+            </div>
+            <button class="cart-button" onclick="showCart()">🛒 Cart (<span id="cart-count">0</span>)</button>
+        </div>
+        <div class="container" id="product-list"></div>
+        <div class="cart-container" id="cart">
+            <h2>Shopping Cart</h2>
+            <div id="cart-items"></div>
+            <h3>Total: ₹<span id="total-amount">0</span></h3>
+            <button  class="button"  onclick="payNow()">Pay Online</button>
+            <button  class="button"  onclick="payOffline()">Pay Offline</button>
+        </div>
+        <div id="contact-section">
+            <h2>Contact Us</h2>
+            <p>Email: support@SnapDilivery.com</p>
+            <p>Phone: +91 9876543210</p>
+            <p>Address: 123, Snap Street, Ahmedabad, India</p>
+            <p></p>
+            <footer class="bg-light text-center py-4">
+            <p>&copy; 2025-2030 SNAP. All Rights Reserved.</p>
+            </footer>
+        </div>
+        <audio id="splash-audio" src="images/snap.mp3" type="audio/mpeg"></audio>
+    </div>
+    
+    
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let audio = document.getElementById("splash-audio");
+            audio.play();
+            setTimeout(() => {
+                document.getElementById("splash").style.display = "none";
+                document.getElementById("main-content").style.display = "block";
+            }, 2000);
+        });
+
+        let cart = [];
+        function addToCart(product, price, quantity) {
+            price = parseFloat(price.replace('₹', '').split('/')[0]);
+            cart.push({ product, price, quantity: parseInt(quantity) });
+            updateCart();
+        }
+        
+        function updateCart() {
+            let cartCount = document.getElementById("cart-count");
+            let cartItems = document.getElementById("cart-items");
+            let totalAmount = document.getElementById("total-amount");
+            
+            cartCount.innerText = cart.length;
+            cartItems.innerHTML = "";
+            let total = 0;
+            
+            cart.forEach(item => {
+                total += item.price * item.quantity;
+                cartItems.innerHTML += `<p>${item.product} - ${item.quantity} x ₹${item.price} = ₹${item.price * item.quantity}</p>`;
+            });
+            totalAmount.innerText = total;
+        }
+
+        function showCart() {
+            document.getElementById("cart").style.display = "block";
+            document.getElementById("cart").scrollIntoView({ behavior: "smooth" });
+        }
+
+        function payNow() {
+            alert("Proceeding to Online Payment");
+            location.reload();
+            clearCart();
+        }
+
+        function payOffline() {
+            alert("You selected Cash on Delivery");
+            location.reload();
+            clearCart();
+        }
+        function clearCart() {
+        cart = [];
+        updateCart();
+        document.getElementById("cart").style.display = "none";
+    }
+        function hidePaymentOptions() {
+        document.getElementById("cart").innerHTML += "<p>Payment Processed Successfully!</p>";
+        document.getElementById("cart").querySelector("button").style.display = "none";
+    }
+        function scrollToContact() {
+            const contactSection = document.getElementById("contact-section");
+            contactSection.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+
+        const products = [
+            { name: "Apple", price: "₹120/kg", category: "Fruits", image: "images/apples.jpeg" },
+            { name: "Banana", price: "₹50/dozen", category: "Fruits", image: "https://upload.wikimedia.org/wikipedia/commons/8/8a/Banana-Single.jpg" },
+            { name: "Carrot", price: "₹40/kg", category: "Vegetables", image: "images/carrots.jpg" },
+            { name: "Tomato", price: "₹30/kg", category: "Vegetables", image: "images/tomatos.avif" },
+            { name: "Milk", price: "₹60/L", category: "Dairy", image: "images/milk.avif" },
+            { name: "Cheese", price: "₹250/kg", category: "Dairy", image: "images/cheese.avif" },
+            { name: "Chips", price: "₹20/pack", category: "Snacks", image: "images/chips.avif" },
+            { name: "Chocolate", price: "₹80/bar", category: "Snacks", image: "images/choclate.avif" },
+            { name: "Juice (Offer: Buy 1 Get 1 Free)", price: "₹100", category: "Offers", image: "images/juice.avif", offer: true },
+            { name: "Biscuits (Offer: 10% Off)", price: "₹50", category: "Offers", image: "images/biscuits.avif", offer: true }
+        ];
+
+        function showAllProducts() {
+            displayProducts("all");
+        }
+        
+        function filterProducts() {
+            const category = document.getElementById("category-filter").value;
+            displayProducts(category);
+        }
+
+        const productList = document.getElementById("product-list");
+        function displayProducts(category) {
+        productList.innerHTML = "";
+        products
+            .filter(product => category === "all" || product.category === category)
+            .forEach((product) => {
+            let productDiv = document.createElement("div");
+            productDiv.classList.add("product");
+            productDiv.innerHTML = `
+                <img src="${product.image}" alt="${product.name}">
+                <h3>${product.name}</h3>
+                <p>${product.price}</p>
+                ${product.offer ? `<p class="offer">${product.name.split('(')[1]}</p>` : ''}
+                <input type="number" class="quantity" min="1" value="1">
+                <button class="button" onclick="addToCart('${product.name}','${product.price}', this.previousElementSibling.value)">Add to Cart</button>
+            `;
+            productList.appendChild(productDiv);
+        });
+    }
+        showAllProducts();
+    </script>
+</body>
+</html>
